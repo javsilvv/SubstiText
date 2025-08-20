@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SubstiText: Quinielas</title>
+
+    <link rel="icon" href="data:image/svg+xml,
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+    <circle cx='50' cy='50' r='50' fill='%238000ff'/>
+  </svg>" type="image/svg+xml"   />
+
+    <style>
+        /* Tema oscuro por defecto */
+        :root {
+            --bg: #0b0d10;
+            --card: #12161b;
+            --ink: #e8eef6;
+            --muted: #9fb0c3;
+            --accent: #1f4ed8;
+            --border: #1d2530;
+        }
+
+        /* Tema claro (se aplica añadiendo .light al <body>) */
+        body.light {
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --ink: #111;
+            --muted: #566;
+            --accent: #1f4ed8;
+            --border: #e7edf4;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        /* Barra superior con el switch */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .title {
+            font-weight: 700;
+        }
+
+        /* Switch */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--muted);
+            font-size: .95rem;
+        }
+
+        .switch {
+            appearance: none;
+            width: 44px;
+            height: 26px;
+            border-radius: 999px;
+            cursor: pointer;
+            background: #2a3341;
+            border: 1px solid var(--border);
+            position: relative;
+            outline: none;
+        }
+
+        .switch:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            top: 3px;
+            left: 3px;
+            transition: transform .2s ease;
+        }
+
+        .switch:checked {
+            background: #1640c0;
+        }
+
+        .switch:checked:before {
+            transform: translateX(16px)
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            overflow: hidden;
+            background-clip: padding-box;
+        }
+
+        label {
+            color: var(--muted);
+            font-size: .9rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            background: #0000;
+            color: var(--ink);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            font-family: ui-monospace, Consolas, Menlo, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            display: block;
+        }
+
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+            max-width: 100%;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        button {
+            border: 1px solid var(--border);
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #0000;
+            color: var(--ink);
+        }
+
+        /* Focus bonito */
+        textarea:focus-visible,
+        input[type="text"]:focus-visible,
+        button:focus-visible {
+            outline: none;
+            border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+            box-shadow:
+                0 0 0 2px color-mix(in oklab, var(--accent) 55%, transparent) inset,
+                0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent);
+        }
+
+        .small {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Barra con el switch -->
+    <div class="topbar">
+        <div class="title">Quitar texto en cualquier parte de la línea</div>
+        <label class="pill">
+            <span>🌙</span>
+            <input id="theme" type="checkbox" class="switch" />
+            <span>☀️</span>
+        </label>
+    </div>
+
+    <main class="wrap">
+        <section class="card" style="margin-bottom:14px;">
+            <label for="in">Entrada (una quiniela por renglón):</label>
+            <textarea id="in" placeholder="L  L  V  L  L  E  L  L  V  Jav Silva"></textarea>
+
+            <div class="row">
+                <input id="needle" type="text" placeholder="Texto a quitar (ej. Antonio Coba)" />
+                <label class="check"><input id="ci" type="checkbox" checked />Ignorar mayúsculas/minúsculas</label>
+                <button id="btn-run">Quitar</button>
+                <button id="btn-copy" class="secondary">Copiar salida</button>
+                <button id="btn-clear" class="secondary">Limpiar</button>
+            </div>
+            <div class="small">Elimina todas las coincidencias del texto indicado sin importar la posición. Luego
+                compacta espacios y recorta.</div>
+        </section>
+
+        <section class="card">
+            <label for="out">Salida</label>
+            <textarea id="out" placeholder="Aquí verás el resultado…" readonly></textarea>
+        </section>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        /* === Reactivo: leer #in y llenar #needle automáticamente === */
+        function extractLastNameFrom(text) {
+            const lines = String(text).replace(/\r\n?/g, '\n')
+                .split('\n')
+                .map(l => l.trim())
+                .filter(Boolean);
+
+            let lastName = '';
+            for (const line of lines) {
+                const tokens = line.split(/\s+/);            // separa por 1+ espacios
+                const letters = tokens.filter(t => /^[LEV]$/i.test(t)); // cuenta solo L/E/V
+                if (letters.length === 7 || letters.length === 9) {
+                    const rest = tokens.slice(letters.length).join(' ').trim();
+                    if (rest) lastName = rest; // nos quedamos con el último válido
+                }
+            }
+            return lastName;
+        }
+
+        (function setupReactiveFill() {
+            const inEl = $('in');
+            const needleEl = $('needle');
+            if (!inEl || !needleEl) return;
+
+            const update = () => {
+                const name = extractLastNameFrom(inEl.value);
+                needleEl.value = name || '';
+            };
+
+            // Actualiza en vivo al escribir/pegar
+            inEl.addEventListener('input', update);
+
+            // Inicializa por si ya hay texto al cargar
+            update();
+        })();
+
+        /* ====== Switch Claro/Oscuro con persistencia ====== */
+        const THEME_KEY = 'q_theme';
+        const themeToggle = $('theme');
+
+        // Cargar preferencia (si no hay, respeta prefers-color-scheme)
+        const saved = localStorage.getItem(THEME_KEY);
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (saved === 'light' || (!saved && prefersLight)) {
+            document.body.classList.add('light');
+            themeToggle.checked = true;
+        }
+        themeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('light', themeToggle.checked);
+            localStorage.setItem(THEME_KEY, themeToggle.checked ? 'light' : 'dark');
+        });
+
+        /* ====== Funcionalidad existente ====== */
+        function escapeRegex(s) {
+            return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function stripAnywhere(text, needle, caseInsensitive = true) {
+            if (!needle) return text;
+            const flags = 'g' + (caseInsensitive ? 'i' : '');
+            const rx = new RegExp(escapeRegex(needle), flags);
+
+            return text.replace(/\r\n?/g, '\n')
+                .split('\n')
+                .map(line => line.replace(rx, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .trim())
+                .join('\n');
+        }
+
+        async function copyTextFromTextarea(textarea, btn) {
+            const text = textarea.value ?? '';
+            if (!text.length) { alert('No hay nada que copiar.'); return; }
+            try {
+                await navigator.clipboard.writeText(text);
+                flash(btn, '✅ ¡Copiado!');
+            } catch (e) {
+                const wasReadOnly = textarea.hasAttribute('readonly');
+                if (wasReadOnly) textarea.removeAttribute('readonly');
+                textarea.focus(); textarea.select(); textarea.setSelectionRange(0, text.length);
+                const ok = document.execCommand('copy');
+                window.getSelection()?.removeAllRanges();
+                if (wasReadOnly) textarea.setAttribute('readonly', '');
+                ok ? flash(btn, '¡Copiado!') : alert('No se pudo copiar. Selecciona el texto y usa Ctrl/Cmd + C.');
+            }
+        }
+        function flash(btn, txt) { const old = btn.textContent; btn.textContent = txt; setTimeout(() => btn.textContent = old, 900); }
+
+        $('btn-run').addEventListener('click', () => {
+            $('out').value = stripAnywhere($('in').value, $('needle').value, $('ci').checked);
+        });
+        $('btn-copy').addEventListener('click', (ev) => copyTextFromTextarea($('out'), ev.currentTarget));
+        $('btn-clear').addEventListener('click', () => { $('in').value = ''; $('out').value = ''; $('needle').value = ''; $('ci').checked = true; });
+    </script>
+</body>
+
+</html>
