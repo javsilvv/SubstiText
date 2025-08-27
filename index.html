@@ -210,6 +210,7 @@
                 <label class="check"><input id="ci" type="checkbox" checked />Ignorar mayúsculas/minúsculas</label>
                 <button id="btn-run">Quitar</button>
                 <button id="btn-copy" class="secondary">Copiar salida</button>
+                <button id="btn-copy-name" class="secondary">Copiar nombre</button>
                 <button id="btn-clear" class="secondary">Limpiar</button>
             </div>
             <div class="small">Elimina todas las coincidencias del texto indicado sin importar la posición. Luego
@@ -224,6 +225,20 @@
 
     <script>
         const $ = id => document.getElementById(id);
+
+         // Iconos + texto para los botones (sin cambiar tu HTML)
+        (function addButtonIcons() {
+            const pairs = [
+                ['btn-run', '✂ Quitar'],
+                ['btn-copy', '📋 Copiar salida'],
+                ['btn-copy-name', '📝 Copiar nombre'],
+                ['btn-clear', '🗑 Limpiar']
+            ];
+            for (const [id, label] of pairs) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = label; // simple y compatible con tu flash()
+            }
+        })();
 
         /* === Reactivo: leer #in y llenar #needle automáticamente === */
         function extractLastNameFrom(text) {
@@ -294,6 +309,50 @@
                     .trim())
                 .join('\n');
         }
+
+         // Copea N cantidad de nombre de la quiniela por N cantidad de reglones
+        async function copyNameRepeated(ev) {
+            const btn = ev.currentTarget;
+            const name = (document.getElementById('needle')?.value || '').trim();
+            if (!name) {
+                alert('No hay nada que copiar.');
+                return;
+            }
+
+            const inText = document.getElementById('in')?.value ?? '';
+            const N = String(inText)
+                .replace(/\r\n?/g, '\n')
+                .split('\n')
+                .map(l => l.trim())
+                .filter(l => l.length > 0) // ← ignora renglones vacíos
+                .length;
+
+            if (N === 0) {
+                alert('No hay renglones para copiar.');
+                return;
+            }
+
+            const payload = Array(N).fill(name).join('\n');
+
+            try {
+                await navigator.clipboard.writeText(payload);
+                flash(btn, '✅ ¡Copiado!');
+            } catch (e) {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = payload;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select(); ta.setSelectionRange(0, payload.length);
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                ok ? flash(btn, '¡Copiado!') : alert('No se pudo copiar. Selecciona y usa Ctrl/Cmd + C.');
+            }
+        }
+
+        document.getElementById('btn-copy-name')?.addEventListener('click', copyNameRepeated);
 
         async function copyTextFromTextarea(textarea, btn) {
             const text = textarea.value ?? '';
